@@ -39,14 +39,14 @@
                 @Html.DisplayFor(model => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(model => item.Duration)
+                @Html.DisplayFor(model => item.Duration) minutes
             </td>
             <td>
                 @Html.DisplayFor(model => item.Capacity)
             </td>
             
             <td>
-                @Html.DisplayFor(model => item.Trainer)
+                @Html.DisplayFor(model => item.Trainer!.FullName)
             </td>
             <td>
                     @if (User.IsInRole("Admin"))

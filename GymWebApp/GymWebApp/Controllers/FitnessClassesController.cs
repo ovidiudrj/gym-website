@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using GymWebApp.Models;
 using GymWebApp.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 [Authorize(Roles = "Admin")]
@@ -19,7 +20,7 @@ public class FitnessClassesController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Index()    
     {
-        return View(await _context.FitnessClasses.ToListAsync());
+        return View(await _context.FitnessClasses.Include(f => f.Trainer).ToListAsync());
     }
 
     // GET: FITNESSCLASSS/Details/5
@@ -31,8 +32,7 @@ public class FitnessClassesController : Controller
             return NotFound();
         }
 
-        var fitnessclass = await _context.FitnessClasses
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var fitnessclass = await _context.FitnessClasses.Include(f => f.Trainer).FirstOrDefaultAsync(m => m.Id == id);
         if (fitnessclass == null)
         {
             return NotFound();
@@ -44,6 +44,8 @@ public class FitnessClassesController : Controller
     // GET: FITNESSCLASSS/Create
     public IActionResult Create()
     {
+        ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName");
+        //SelectList( sursa_datelor, valoare, textul afisat )
         return View();
     }
 
@@ -52,7 +54,7 @@ public class FitnessClassesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Duration,Capacity,TrainerId,Trainer")] FitnessClass fitnessclass)
+    public async Task<IActionResult> Create([Bind("Id,Name,Duration,Capacity,TrainerId")] FitnessClass fitnessclass)
     {
         if (ModelState.IsValid)
         {
@@ -76,6 +78,9 @@ public class FitnessClassesController : Controller
         {
             return NotFound();
         }
+
+        ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName");
+
         return View(fitnessclass);
     }
 
@@ -84,7 +89,7 @@ public class FitnessClassesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Name,Duration,Capacity,TrainerId,Trainer")] FitnessClass fitnessclass)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Name,Duration,Capacity,TrainerId")] FitnessClass fitnessclass)
     {
         if (id != fitnessclass.Id)
         {
