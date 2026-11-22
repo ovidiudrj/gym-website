@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GymWebApp.Models.Subscription> // lista de abonamente primită de la acțiunea MyMembership 
+﻿@model IEnumerable<GymWebApp.Models.Subscription> 
 
 @{
     ViewData["Title"] = "My Membership";
@@ -13,6 +13,11 @@
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
 @if (active != null)
