@@ -22,7 +22,29 @@ namespace GymWebApp.Controllers
 
 
         // Actiunile Subscribe si MyMembership
-     
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Subscribe(int planId)
+        {
+            var plan = await _context.MembershipPlans
+                .FindAsync(planId);
+
+            if ( plan == null)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+            var startDate = DateTime.Today;
+            var endDate = startDate.AddDays(plan.DurationDays);
+            var subscription = new Subscription { UserId = userId!, MembershipPlanId = planId, StartDate = startDate, EndDate = endDate, PricePaid = plan.Price};
+
+            _context.Subscriptions.Add(subscription);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("MyMembership");
+        }
+        
 
         public async Task<IActionResult> MyMembership()
         {
