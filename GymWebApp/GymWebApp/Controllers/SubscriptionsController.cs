@@ -35,13 +35,25 @@ namespace GymWebApp.Controllers
                 return NotFound();
             }
 
+
             var userId = _userManager.GetUserId(User);
+
+            bool hasActiveSub = await _context.Subscriptions.AnyAsync( s => s.UserId == userId && s.EndDate >= DateTime.Today);
+
+            if (hasActiveSub)
+            {
+                TempData["Error"] = "You already have an active membership";
+
+                return RedirectToAction("MyMembership");
+            }    
+
             var startDate = DateTime.Today;
             var endDate = startDate.AddDays(plan.DurationDays);
             var subscription = new Subscription { UserId = userId!, MembershipPlanId = planId, StartDate = startDate, EndDate = endDate, PricePaid = plan.Price};
 
             _context.Subscriptions.Add(subscription);
             await _context.SaveChangesAsync();
+            TempData["Success"] = $"You subscribed to {plan.Name}!";
             return RedirectToAction("MyMembership");
         }
         
