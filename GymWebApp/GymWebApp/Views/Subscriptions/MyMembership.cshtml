@@ -1,0 +1,81 @@
+﻿@model IEnumerable<GymWebApp.Models.Subscription> // lista de abonamente primită de la acțiunea MyMembership 
+
+@{
+    ViewData["Title"] = "My Membership";
+    var active = Model.FirstOrDefault(s => s.StartDate <= DateTime.Today && s.EndDate >= DateTime.Today);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">My Membership</h1>
+    <a asp-controller="MembershipPlans" asp-action="Index" class="btn btn-primary">View Plans</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (active != null)
+{
+    var daysLeft = (active.EndDate - DateTime.Today).Days;
+
+    <div class="card border-success mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-1">@active.MembershipPlan?.Name</h5>
+            <p class="mb-0">
+                Active until <strong>@active.EndDate.ToString("dd.MM.yyyy")</strong>
+                · @daysLeft days left
+            </p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary">You don't have an active membership.</div>
+}
+
+<h4>History</h4>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No subscriptions yet.</p>
+}
+else
+{
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Plan</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Price Paid</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.MembershipPlan?.Name</td>
+                    <td>@s.StartDate.ToString("dd.MM.yyyy")</td>
+                    <td>@s.EndDate.ToString("dd.MM.yyyy")</td>
+                    <td>@s.PricePaid.ToString("0.00") Lei</td>
+                    <td>
+                        @if (s.EndDate < DateTime.Today)
+                        {
+                            <span class="badge bg-secondary">Expired</span>
+                        }
+                        else if (s.StartDate > DateTime.Today)
+                        {
+                            <span class="badge bg-info text-dark">Upcoming</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
