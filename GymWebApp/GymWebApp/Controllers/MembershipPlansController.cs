@@ -4,21 +4,29 @@ using Microsoft.EntityFrameworkCore;
 using GymWebApp.Models;
 using GymWebApp.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 [Authorize(Roles="Admin")]
 public class MembershipPlansController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<AppUser> _userManager;
 
-    public MembershipPlansController(ApplicationDbContext context)
+    public MembershipPlansController(ApplicationDbContext context, UserManager<AppUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     // GET: MEMBERSHIPPLANS
     [AllowAnonymous]
     public async Task<IActionResult> Index()    
     {
+        var userId = _userManager.GetUserId(User);
+
+        bool hasActiveSub = await _context.Subscriptions.AnyAsync(s => s.UserId == userId && s.EndDate >= DateTime.Today);
+       
+        ViewBag.HasActiveSub = hasActiveSub; //trimitem info suplimentar
         return View(await _context.MembershipPlans.ToListAsync());
     }
 
@@ -52,7 +60,7 @@ public class MembershipPlansController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Price")] MembershipPlan membershipplan)
+    public async Task<IActionResult> Create([Bind("Id,Name,Price,DurationDays")] MembershipPlan membershipplan)
     {
         if (ModelState.IsValid)
         {

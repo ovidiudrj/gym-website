@@ -20,19 +20,39 @@
             <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DurationDays)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
+   @foreach (var item in Model) {
+     <tr>
             <td>
                 @Html.DisplayFor(model => item.Name)
             </td>
             <td>
                 @Html.DisplayFor(model => item.Price) Lei
             </td>
+            <td>
+                @Html.DisplayFor(model => item.DurationDays) Days
+            </td>
                 <td class="text-end text-nowrap">
+                    @if (User.Identity!.IsAuthenticated != true)
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Register" asp-route-returnurl="@Url.Action("Index", "MembershipPlans")"
+                        class="btn btn-sm btn-success">Become Member</a>
+                    }
+                    else if (User.IsInRole("Member") && ViewBag.HasActiveSub != true)
+                    {
+                        <form asp-controller="Subscriptions" asp-action="Subscribe" asp-route-planId="@item.Id"
+                              method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-success">Subscribe</button>
+                        </form>
+                    }
+
+                    
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
                     @if (User.IsInRole("Admin"))
                     {

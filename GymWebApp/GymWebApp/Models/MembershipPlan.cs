@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GymWebApp.Models
 {
@@ -7,6 +8,8 @@ namespace GymWebApp.Models
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public decimal Price { get; set; }
+
+        [Display(Name = "Duration")]
         public int DurationDays { get; set; }
     }
 }
